@@ -76,11 +76,11 @@ void doEncoders(int M) {
 
   //read encoder ticks
   if(M == 0){
-    EncoderVal[0] = lEncoder.read()*-1;
+    EncoderVal[0] = lEncoder.read();
     lEncoder.write(0);
   }
   if(M == 1){
-    EncoderVal[1] = (rEncoder.read());
+    EncoderVal[1] = (rEncoder.read()*-1);
     rEncoder.write(0);
   }
 

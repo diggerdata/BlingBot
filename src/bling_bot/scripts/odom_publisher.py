@@ -38,7 +38,7 @@ def generateMessage(aer, ael):
     delta_l = dt * ael
 
     delta_xy = (delta_r + delta_l) / 2.0
-    delta_th = ((delta_r - delta_l) / wheel_separation) * odom_turn_multiplier
+    delta_th = ((delta_l - delta_r) / wheel_separation) * odom_turn_multiplier
 
     th =  th + delta_th
     x = x + delta_xy * math.cos(th)
