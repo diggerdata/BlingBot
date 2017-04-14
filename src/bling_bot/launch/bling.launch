@@ -14,7 +14,7 @@
   <!-- </node> -->
   <!-- <node name="odom_publisher" pkg="bling_bot" type="odom_publisher.py" output="screen"></node> -->
 
-  <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_laser_link" args="0.085 0 0.12 0 0 0 1 /base_link /camera_depth_frame 100" /> -->
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_laser_link" args="0.085 0 0.12 0 0 0 1 /base_link /camera_depth_frame 100" />
 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <param name="base_frame" value="$(arg base_frame)"/>

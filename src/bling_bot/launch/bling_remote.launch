@@ -14,5 +14,5 @@
   </node>
   <node name="odom_publisher" pkg="bling_bot" type="odom_publisher.py" output="screen"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_laser_link" args="0.085 0 0.12 0 0 0 1 /base_link /camera_depth_frame 100" />
+  <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_laser_link" args="0.085 0 0.12 0 0 0 1 /base_link /camera_depth_frame 100" /> -->
 </launch>
