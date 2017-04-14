@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('bling_bot')
+import roslib
 import rospy
 import time
 import math
