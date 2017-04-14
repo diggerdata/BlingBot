@@ -65,10 +65,11 @@ def cmd_callback(msg):
     set_motor_vel(vr, vl)
 
 def listener():
+    rospy.init_node('cmd_vel_subscriber')
+    
     global left_vel
     global right_vel
 
-    rospy.init_node('cmd_vel_subscriber')
     motors.enable()
     motors.setSpeeds(0, 0)
     rospy.Subscriber("/cmd_vel", Twist, cmd_callback)
