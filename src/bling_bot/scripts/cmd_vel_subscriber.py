@@ -13,33 +13,14 @@ from dual_mc33926_rpi import motors, MAX_SPEED
 def limit(num, minimum=-480, maximum=480):
     return max(min(num, maximum), minimum)
 
-def encoder_callback(msg):
+def set_motor_vel(vr, vl):
     global left_vel
     global right_vel
 
-    left_vel = msg.linear.x
-    right_vel = msg.linear.y
-
-def cmd_callback(msg):
-    global left_vel
-    global right_vel
-
-    rospy.loginfo("Received a /cmd_vel message!")
-    rospy.loginfo("Linear Components: [%f, %f, %f]"%(msg.linear.x, msg.linear.y, msg.linear.z))
-    rospy.loginfo("Angular Components: [%f, %f, %f]"%(msg.angular.x, msg.angular.y, msg.angular.z))
-
-    robot_width = 0.17
-
-    # Do velocity processing here:
-    # Use the kinematics of your robot to map linear and angular velocities into motor commands
-
-    kp = 0.2
-    ki = 0.0
-    kd = 0.0
+    kp = 1.2
+    ki = 1.0
+    kd = 0.001
     sample_time = 0.01
-
-    vl = msg.linear.x - msg.angular.z * robot_width / 2.0
-    vr = msg.linear.x + msg.angular.z * robot_width / 2.0
 
     pid_left = pid.pid(kp, ki, kd)
     pid_right = pid.pid(kp, ki, kd)
@@ -63,6 +44,25 @@ def cmd_callback(msg):
     finally:
         motors.setSpeeds(0, 0)
         motors.disable()
+
+def encoder_callback(msg):
+    global left_vel
+    global right_vel
+
+    left_vel = msg.linear.x
+    right_vel = msg.linear.y
+
+def cmd_callback(msg):
+    rospy.loginfo("Received a /cmd_vel message!")
+    rospy.loginfo("Linear Components: [%f, %f, %f]"%(msg.linear.x, msg.linear.y, msg.linear.z))
+    rospy.loginfo("Angular Components: [%f, %f, %f]"%(msg.angular.x, msg.angular.y, msg.angular.z))
+
+    robot_width = 0.17
+
+    vr = (msg.angular.z * robot_width) / 2.0 + msg.linear.x;
+    vl = msg.linear.x * 2.0 - vr;
+
+    set_motor_vel(vr, vl)
 
 def listener():
     global left_vel
