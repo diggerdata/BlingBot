@@ -39,7 +39,7 @@ def set_motor_vel(vr, vl):
 
     # Then set your wheel speeds (using wheel_left and wheel_right as examples)
     try:
-        motors.setSpeeds(vl, vr)
+        motors.setSpeeds(vl_out, vr_out)
 
     finally:
         motors.setSpeeds(0, 0)
