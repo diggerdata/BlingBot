@@ -8,71 +8,11 @@
 
   <include file="$(find openni2_launch)/launch/openni2.launch"/>
 
-  <node pkg="rosserial_python" type="serial_node.py" name="serial_node"> -->
+  <node pkg="rosserial_python" type="serial_node.py" name="serial_node">
     <param name="port" value="$(arg serial_port)"/>
     <param name="baud" value="$(arg baud_rate)"/>
   </node>
-  <node name="odom_publisher" pkg="bling_bot" type="odom_publisher.py" output="screen"></node>
+  <node name="odom_publisher" pkg="bling_bot" type="odom_publisher.py" output="screen"/>
 
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_laser_link" args="0.085 0 0.12 0 0 0 1 /base_link /camera_depth_frame 100" />
-
-  <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-    <param name="base_frame" value="$(arg base_frame)"/>
-    <param name="odom_frame" value="$(arg odom_frame)"/>
-    <param name="map_update_interval" value="0.5"/>
-    <param name="maxUrange" value="6.0"/>
-    <param name="maxRange" value="8.0"/>
-    <param name="sigma" value="0.05"/>
-    <param name="kernelSize" value="1"/>
-    <param name="lstep" value="0.05"/>
-    <param name="astep" value="0.05"/>
-    <param name="iterations" value="5"/>
-    <param name="lsigma" value="0.075"/>
-    <param name="ogain" value="3.0"/>
-    <param name="lskip" value="0"/>
-    <!-- <param name="minimumScore" value="50"/> -->
-    <!-- <param name="srr" value="0.01"/> -->
-    <!-- <param name="srt" value="0.02"/> -->
-    <!-- <param name="str" value="0.01"/> -->
-    <!-- <param name="stt" value="0.02"/> -->
-    <!-- <param name="linearUpdate" value="0.5"/> -->
-    <!-- <param name="angularUpdate" value="0.436"/> -->
-    <!-- <param name="temporalUpdate" value="-1.0"/> -->
-    <!-- <param name="resampleThreshold" value="0.5"/> -->
-    <!-- <param name="particles" value="80"/> -->
-  <!--
-    <param name="xmin" value="-50.0"/>
-    <param name="ymin" value="-50.0"/>
-    <param name="xmax" value="50.0"/>
-    <param name="ymax" value="50.0"/>
-  make the starting size small for the benefit of the Android client's memory...
-  -->
-    <!-- <param name="xmin" value="-1.0"/> -->
-    <!-- <param name="ymin" value="-1.0"/> -->
-    <!-- <param name="xmax" value="1.0"/> -->
-    <!-- <param name="ymax" value="1.0"/> -->
-
-    <!-- <param name="delta" value="0.05"/> -->
-    <!-- <param name="llsamplerange" value="0.01"/> -->
-    <!-- <param name="llsamplestep" value="0.01"/> -->
-    <!-- <param name="lasamplerange" value="0.005"/> -->
-    <!-- <param name="lasamplestep" value="0.005"/> -->
-    <!-- <remap from="scan" to="$(arg scan_topic)"/> -->
-  <!-- </node> -->
-
-	<!-- <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet /camera/camera_nodelet_manager"> -->
-      <!-- Pixel rows to use to generate the laserscan. For each column, the scan will
-           return the minimum value for those pixels centered vertically in the image. -->
-      <!-- <param name="scan_height" value="10"/> -->
-      <!-- <param name="output_frame_id" value="/camera_depth_frame"/> -->
-      <!-- <param name="range_min" value="0.45"/> -->
-      <!-- <remap from="image" to="/camera/depth/image_raw"/> -->
-      <!-- <remap from="scan" to="$(arg scan_topic)"/> -->
-
-      <!-- Somehow topics here get prefixed by "$(arg camera)" when not inside an app namespace,
-           so in this case "$(arg scan_topic)" must provide an absolute topic name (issue #88).
-           Probably is a bug in the nodelet manager: https://github.com/ros/nodelet_core/issues/7 -->
-      <!-- <remap from="/camera/image" to="/camera/depth/image_raw"/> -->
-      <!-- <remap f`rom="/camera/scan" to="$(arg scan_topic)"/> -->
-<!-- </node> -->
 </launch>
