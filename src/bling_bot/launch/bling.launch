@@ -4,6 +4,7 @@
   <arg name="odom_frame"  default="odom"/>
   <arg name="publish_tf"  default="true"/>
 
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_laser_link" args="0.085 0 0.12 0 0 0 1 /base_link /camera_depth_frame 100" />
 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <param name="base_frame" value="$(arg base_frame)"/>
@@ -24,11 +25,11 @@
     <param name="srt" value="0.02"/>
     <param name="str" value="0.01"/>
     <param name="stt" value="0.02"/>
-    <!-- <param name="linearUpdate" value="0.5"/>
+    <param name="linearUpdate" value="0.5"/>
     <param name="angularUpdate" value="0.436"/>
     <param name="temporalUpdate" value="-1.0"/>
-    <param name="resampleThreshold" value="0.5"/>
-    <param name="particles" value="80"/> -->
+    <param name="resampleThreshold" value="0.1"/>
+    <param name="particles" value="80"/>
 
     <param name="xmin" value="-1.0"/>
     <param name="ymin" value="-1.0"/>
@@ -42,4 +43,5 @@
     <param name="lasamplestep" value="0.005"/>
     <remap from="scan" to="$(arg scan_topic)"/>
   </node>
+
 </launch>
