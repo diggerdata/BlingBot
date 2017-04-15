@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import roslib
 import rospy
 import time
 import math
@@ -66,7 +65,7 @@ def cmd_callback(msg):
 
 def listener():
     rospy.init_node('cmd_vel_subscriber')
-    
+
     global left_vel
     global right_vel
 
