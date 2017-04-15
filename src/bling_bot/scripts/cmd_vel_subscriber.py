@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('bling_bot')
+import roslib
 import rospy
 import time
 import math
@@ -39,7 +39,7 @@ def set_motor_vel(vr, vl):
 
     # Then set your wheel speeds (using wheel_left and wheel_right as examples)
     try:
-        motors.setSpeeds(vl, vr)
+        motors.setSpeeds(vl_out, vr_out)
 
     finally:
         motors.setSpeeds(0, 0)
@@ -65,10 +65,11 @@ def cmd_callback(msg):
     set_motor_vel(vr, vl)
 
 def listener():
+    rospy.init_node('cmd_vel_subscriber')
+    
     global left_vel
     global right_vel
 
-    rospy.init_node('cmd_vel_subscriber')
     motors.enable()
     motors.setSpeeds(0, 0)
     rospy.Subscriber("/cmd_vel", Twist, cmd_callback)

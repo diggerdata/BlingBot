@@ -3,16 +3,6 @@
   <arg name="base_frame"  default="base_link"/>
   <arg name="odom_frame"  default="odom"/>
   <arg name="publish_tf"  default="true"/>
-  <arg name="serial_port"  default="/dev/ttyACM0"/>
-  <arg name="baud_rate"  default="57600"/>
-
-  <!-- <include file="$(find openni2_launch)/launch/openni2.launch"/> -->
-
-  <!-- <node pkg="rosserial_python" type="serial_node.py" name="serial_node"> -->
-    <!-- <param name="port" value="$(arg serial_port)"/> -->
-    <!-- <param name="baud" value="$(arg baud_rate)"/> -->
-  <!-- </node> -->
-  <!-- <node name="odom_publisher" pkg="bling_bot" type="odom_publisher.py" output="screen"></node> -->
 
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_laser_link" args="0.085 0 0.12 0 0 0 1 /base_link /camera_depth_frame 100" />
 
@@ -38,15 +28,9 @@
     <param name="linearUpdate" value="0.5"/>
     <param name="angularUpdate" value="0.436"/>
     <param name="temporalUpdate" value="-1.0"/>
-    <param name="resampleThreshold" value="0.5"/>
+    <param name="resampleThreshold" value="0.1"/>
     <param name="particles" value="80"/>
-  <!--
-    <param name="xmin" value="-50.0"/>
-    <param name="ymin" value="-50.0"/>
-    <param name="xmax" value="50.0"/>
-    <param name="ymax" value="50.0"/>
-  make the starting size small for the benefit of the Android client's memory...
-  -->
+
     <param name="xmin" value="-1.0"/>
     <param name="ymin" value="-1.0"/>
     <param name="xmax" value="1.0"/>
@@ -59,6 +43,5 @@
     <param name="lasamplestep" value="0.005"/>
     <remap from="scan" to="$(arg scan_topic)"/>
   </node>
-
 
 </launch>
