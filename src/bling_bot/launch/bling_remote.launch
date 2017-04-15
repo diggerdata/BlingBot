@@ -13,7 +13,7 @@
   <node name="odom_publisher" pkg="bling_bot" type="odom_publisher.py" output="screen"/>
 
   <!-- sudo -E PYTHONPATH=$(env PYTHONPATH) ROS_ROOT =$(env ROS_ROOT) -->
-  <node name="cmd_vel_subscriber" pkg="bling_bot" type="cmd_vel_subscriber.py" output="screen" launch-prefix="sudo ROS_ROOT=/home/pi/ros/ros PYTHONPATH=$(env PYTHONPATH) PATH=$ROS_ROOT/bin:$PATH"/>
+  <node name="cmd_vel_subscriber" pkg="bling_bot" type="cmd_vel_subscriber.py" output="screen" launch-prefix="sudo -E ROS_ROOT=/home/pi/ros/ros PYTHONPATH=$(env PYTHONPATH) PATH=$ROS_ROOT/bin:$PATH"/>
 
   <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan_loader" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet /camera/camera_nodelet_manager">
       <!-- Pixel rows to use to generate the laserscan. For each column, the scan will
