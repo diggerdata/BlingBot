@@ -11,7 +11,7 @@ def io_init():
   if io_initialized:
     return
 
-  pi = pigio.pi()
+  pi = pigpio.pi()
 
   # PWM pins
   pi.set_mode(12, pigpio.OUTPUT)
