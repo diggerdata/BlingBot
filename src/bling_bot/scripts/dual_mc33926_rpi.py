@@ -8,25 +8,26 @@ MAX_SPEED = _max_speed
 io_initialized = False
 def io_init():
   global io_initialized
+  global pi
   if io_initialized:
     return
 
-  pigpio.pi()
+  pi = pigpio.pi()
 
   # PWM pins
-  pigpio.set_mode(12, pigpio.OUTPUT)
-  pigpio.set_mode(13, pigpio.OUTPUT)
+  pi.set_mode(12, pigpio.OUTPUT)
+  pi.set_mode(13, pigpio.OUTPUT)
 
-  pigpio.set_PWM_range(12, MAX_SPEED)
-  pigpio.set_PWM_range(13, MAX_SPEED)
-  pigpio.set_PWM_frequency(12, 2)
-  pigpio.set_PWM_frequency(13, 2)
+  pi.set_PWM_range(12, MAX_SPEED)
+  pi.set_PWM_range(13, MAX_SPEED)
+  pi.set_PWM_frequency(12, 2)
+  pi.set_PWM_frequency(13, 2)
 
   # 22, 23, 24, 25 - GPIO pins
-  pigpio.set_mode(22, pigpio.OUTPUT)
-  pigpio.set_mode(23, pigpio.OUTPUT)
-  pigpio.set_mode(24, pigpio.OUTPUT)
-  pigpio.set_mode(25, pigpio.OUTPUT)
+  pi.set_mode(22, pigpio.OUTPUT)
+  pi.set_mode(23, pigpio.OUTPUT)
+  pi.set_mode(24, pigpio.OUTPUT)
+  pi.set_mode(25, pigpio.OUTPUT)
 
   io_initialized = True
 
@@ -39,14 +40,20 @@ class Motor(object):
         self.en_pin = en_pin
 
     def enable(self):
+        global pi
+
         io_init()
-        pigpio.write(self.en_pin, 1)
+        pi.write(self.en_pin, 1)
 
     def disable(self):
+        global pi
+        
         io_init()
-        pigpio.write(self.en_pin, 0)
+        pi.write(self.en_pin, 0)
 
     def setSpeed(self, speed):
+        global pi
+
         if speed < 0:
             speed = -speed
             dir_value = 1
@@ -57,8 +64,8 @@ class Motor(object):
             speed = MAX_SPEED
 
         io_init()
-        pigpio.write(self.dir_pin, dir_value)
-        pigpio.set_PWM_dutycycle(self.pwm_pin, speed)
+        pi.write(self.dir_pin, dir_value)
+        pi.set_PWM_dutycycle(self.pwm_pin, speed)
 
 class Motors(object):
     MAX_SPEED = _max_speed
