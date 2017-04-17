@@ -19,7 +19,7 @@ double prevPos2;
 
 float WHEEL_DIAMETER = 0.07;
 float WHEEL_SEPARATION = 0.17;
-int TICKS_PER_REV = 1796; //Encoder ticks per rotation 
+int TICKS_PER_REV = 1796; //Encoder ticks per rotation
 
 int OdomWait = 3;
 int OdomCount = 0;
@@ -64,7 +64,7 @@ void loop() {
   doEncoders(0);
   doEncoders(1);
 
-  delay(3);
+  delay(10);
 }
 
 void doEncoders(int M) {
@@ -92,10 +92,10 @@ void doEncoders(int M) {
 
   //diferential of distance in meters
   DDis[M] = ticksToMeters(EncoderVal[M]);
-  
+
   //calculate short term measured velocity
   double EVel = (DDis[M]/DTime)*1000;
-  
+
   //save to publish to /ard_odom
   Vels[M] = EVel;
 }
@@ -103,4 +103,3 @@ void doEncoders(int M) {
 double ticksToMeters(long ticks) {
   return (ticks * ((PI*WHEEL_DIAMETER) / TICKS_PER_REV));
 }
-

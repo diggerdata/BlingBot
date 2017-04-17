@@ -110,8 +110,8 @@ def main():
         odom.twist.twist = Twist(Vector3(vx, 0, 0), Vector3(0, 0, vth))
 
         # print to console
-        console_out = "X {0} Y {1} Theta {2}".format(x, y, th)
-        rospy.loginfo(console_out)
+        # console_out = "X {0} Y {1} Theta {2}".format(x, y, th)
+        # rospy.loginfo(console_out)
 
         # publish the message
         odom_pub.publish(odom)

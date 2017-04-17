@@ -27,15 +27,16 @@ def set_motor_vel():
     pid_left.update(left_vel)
     pid_right.update(right_vel)
 
-    vl_out = -1 * limit(pid_left.output)
-    vr_out = limit(pid_right.output)
-    # vl_out = vl * -480
-    # vr_out = vr * 480
+    if vr and vl == 0.0:
+        vl_out = 0
+        vr_out = 0
+    else:
+        vl_out = -1 * limit(pid_left.output)
+        vr_out = limit(pid_right.output)
 
-    # Then set your wheel speeds (using wheel_left and wheel_right as examples)
+    # rospy.loginfo("error: [{0}, {1}]".format(vr - right_vel, vl - left_vel))
+
     try:
-        out_str = "Setting motors: {0}, {1}".format(vr_out, vl_out)
-        rospy.logwarn(out_str)
         motors.setSpeeds(vl_out, vr_out)
 
     except:
@@ -46,23 +47,21 @@ def encoder_callback(msg):
     global left_vel
     global right_vel
 
-    # rospy.logwarn("encoder_callback")
+    left_vel = msg.linear.y
+    right_vel = msg.linear.x
 
-    left_vel = msg.linear.x
-    right_vel = msg.linear.y
+    set_motor_vel()
 
 def cmd_callback(msg):
     global vl
     global vr
 
-    rospy.logwarn("Received a /cmd_vel message!")
-    # rospy.loginfo("Linear Components: [%f, %f, %f]"%(msg.linear.x, msg.linear.y, msg.linear.z))
-    # rospy.loginfo("Angular Components: [%f, %f, %f]"%(msg.angular.x, msg.angular.y, msg.angular.z))
-
     robot_width = 0.17
 
     vr = (msg.angular.z * robot_width) / 2.0 + msg.linear.x;
     vl = msg.linear.x * 2.0 - vr;
+
+    # rospy.loginfo("velocities: [{0}, {1}]".format(vr, vl))
 
 def main():
     rospy.init_node('cmd_vel_subscriber')
@@ -76,16 +75,16 @@ def main():
     global pid_left
     global pid_right
 
-    kp = 500
-    ki = 0.01
-    kd = 0.001
-    sample_time = 0.01
+    kp = 1.0
+    ki = 1700.0
+    kd = 0.5
+    sample_time = 0.009
 
     pid_left = pid.pid(kp, ki, kd)
     pid_right = pid.pid(kp, ki, kd)
 
-    pid_left.setSampleTime(sample_time)
-    pid_right.setSampleTime(sample_time)
+    # pid_left.setSampleTime(sample_time)
+    # pid_right.setSampleTime(sample_time)
 
     vl = 0.0
     vr = 0.0
@@ -100,16 +99,17 @@ def main():
 
     motors.enable()
     motors.setSpeeds(0, 0)
-    rospy.logwarn("Got past /cmd_vel Subscriber!")
+
     rospy.Subscriber("/ard_odom", Twist, encoder_callback)
     rospy.Subscriber("/cmd_vel", Twist, cmd_callback)
 
     first_time = False
-
-    r = rospy.Rate(100)
-    while not rospy.is_shutdown():
-        set_motor_vel()
-        r.sleep()
+    rospy.spin()
+    #
+    # r = rospy.Rate(100)
+    # while not rospy.is_shutdown():
+    #
+    #     r.sleep()
 
 if __name__ == '__main__':
     main()
