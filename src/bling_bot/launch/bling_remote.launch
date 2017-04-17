@@ -11,6 +11,7 @@
   </node>
 
   <node name="odom_publisher" pkg="bling_bot" type="odom_publisher.py" output="screen"/>
+  <!-- <node name="cmd_vel_publisher" pkg="bling_bot" type="cmd_vel_publisher.py" output="screen"/> -->
 
   <!-- sudo -E PYTHONPATH=$(env PYTHONPATH) ROS_ROOT =$(env ROS_ROOT) -->
   <node name="cmd_vel_subscriber" pkg="bling_bot" type="cmd_vel_subscriber.py" output="screen"/>

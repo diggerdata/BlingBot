@@ -20,8 +20,8 @@ def io_init():
 
   pi.set_PWM_range(12, MAX_SPEED)
   pi.set_PWM_range(13, MAX_SPEED)
-  pi.set_PWM_frequency(12, 2)
-  pi.set_PWM_frequency(13, 2)
+  pi.set_PWM_frequency(12, 20000)
+  pi.set_PWM_frequency(13, 20000)
 
   # 22, 23, 24, 25 - GPIO pins
   pi.set_mode(22, pigpio.OUTPUT)
@@ -47,7 +47,7 @@ class Motor(object):
 
     def disable(self):
         global pi
-        
+
         io_init()
         pi.write(self.en_pin, 0)
 
