@@ -26,13 +26,9 @@ def set_motor_vel():
 
     pid_left.update(left_vel)
     pid_right.update(right_vel)
-
-    if vr and vl == 0.0:
-        vl_out = 0
-        vr_out = 0
-    else:
-        vl_out = -1 * limit(pid_left.output)
-        vr_out = limit(pid_right.output)
+    
+    vl_out = -1 * limit(pid_left.output)
+    vr_out = limit(pid_right.output)
 
     # rospy.loginfo("error: [{0}, {1}]".format(vr - right_vel, vl - left_vel))
 
