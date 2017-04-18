@@ -12,9 +12,11 @@ from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 def getArduinoVels(msg):
     ael = msg.linear.x
     aer = msg.linear.y
-    generateMessage(aer, ael)
 
-def generateMessage(aer, ael):
+    gyro_z = msg.angular.z
+    generateMessage(aer, ael, gyro_z)
+
+def generateMessage(aer, ael, gyro_z):
     global x
     global y
     global th
@@ -37,13 +39,20 @@ def generateMessage(aer, ael):
     delta_r = dt * aer
     delta_l = dt * ael
 
+    # wheel odometry
     delta_xy = (delta_r + delta_l) / 2.0
-    delta_th = ((delta_l - delta_r) / wheel_separation) * odom_turn_multiplier
+    # delta_th = ((delta_l - delta_r) / wheel_separation) * odom_turn_multiplier
 
-    th =  th + delta_th
+    # imu odometry
+    th =  gyro_z
+    delta_th = th - last_th
+    last_th = th
+
+    # xy
     x = x + delta_xy * math.cos(th)
     y = y + delta_xy * math.sin(th)
 
+    # velocity calculations
     vx = delta_xy/dt
     vth = delta_th/dt
 
