@@ -38,13 +38,14 @@ def generateMessage(aer, ael, gyro_z):
 
     delta_r = dt * aer
     delta_l = dt * ael
+    delta_th = dt * gyro_z
 
     # wheel odometry
     delta_xy = (delta_r + delta_l) / 2.0
     # delta_th = ((delta_l - delta_r) / wheel_separation) * odom_turn_multiplier
 
     # imu odometry
-    th =  gyro_z
+    th =  th + delta_th
     delta_th = th - last_th
     last_th = th
 
