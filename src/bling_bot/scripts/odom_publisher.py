@@ -46,8 +46,6 @@ def generateMessage(aer, ael, gyro_z):
 
     # imu odometry
     th =  th + delta_th
-    delta_th = th - last_th
-    last_th = th
 
     # xy
     x = x + delta_xy * math.cos(th)
