@@ -13,8 +13,8 @@
 
 #define IMU
 
-Encoder rEncoder(encrA, encrB);
-Encoder lEncoder(enclA, enclB);
+Encoder rEncoder(ENCODER_R_A, ENCODER_R_B);
+Encoder lEncoder(ENCODER_L_A, ENCODER_L_B);
 L3G gyro;
 LSM303 accel;
 
@@ -33,20 +33,22 @@ double Vels[2] = {0,0};
 
 float G_Dt=0.020;    // Integration time (DCM algorithm)  We will run the integration loop at 50Hz if possible
 
-long timer=0;   //general purpose timer
-long timer1=0;
-long timer2=0;
+long oldTime = 0;
 
-float G_gain=.0049; // gyros gain factor for 250deg/sec
-float gyro_x; //gyro x val
-float gyro_y; //gyro x val
-float gyro_z; //gyro x val
-float gyro_xold; //gyro cummulative x value
-float gyro_yold; //gyro cummulative y value
-float gyro_zold; //gyro cummulative z value
-float gerrx; // Gyro x error
-float gerry; // Gyro y error
-float gerrz; // Gyro 7 error
+double G_gain=.0049; // gyros gain factor for 250deg/sec
+double gyro_x; //gyro x val
+double gyro_y; //gyro x val
+double gyro_z; //gyro x val
+double gyro_xold; //gyro cummulative x value
+double gyro_yold; //gyro cummulative y value
+double gyro_zold; //gyro cummulative z value
+double gerrx; // Gyro x error
+double gerry; // Gyro y error
+double gerrz; // Gyro 7 error
+
+double v_gyro_x = 0;
+double v_gyro_y = 0;
+double v_gyro_z = 0;
 
 ros::NodeHandle nh;
 
@@ -59,7 +61,9 @@ void setup() {
   nh.advertise(Pub);
   odom_msg.linear.x = 1;
   odom_msg.linear.y = 2;
-  odom_mst.angular.z = 3;
+  odom_msg.angular.x = 3;
+  odom_msg.angular.y = 4;
+  odom_msg.angular.z = 5;
   Pub.publish(&odom_msg);
 
   Wire.begin(); // i2c begin
@@ -68,7 +72,6 @@ void setup() {
     while (1);
   }
 
-  timer = millis(); // init timer for first reading
   gyro.enableDefault(); // gyro init. default 250/deg/s
   delay(1000); // allow time for gyro to settle
 
@@ -82,6 +85,9 @@ void loop() {
   if (OdomCount > OdomWait) {
     odom_msg.linear.x = Vels[0];
     odom_msg.linear.y = Vels[1];
+    odom_msg.angular.x = v_gyro_x;
+    odom_msg.angular.y = v_gyro_y;
+    odom_msg.angular.z = v_gyro_z;
     Pub.publish(&odom_msg);
   }
   else {
@@ -90,9 +96,9 @@ void loop() {
 
   doEncoders(0);
   doEncoders(1);
+  readGyro();
 
   delay(10);
-<<<<<<< HEAD
 }
 
 void gyroZero(){
@@ -114,26 +120,38 @@ void gyroZero(){
   Serial.println(gerrz);
 }
 
-void readGyro() {
+void readGyro() {  
+  if(oldTime == 0) {  // do if the timer is not initialized
+    oldTime = millis(); // set timer
+  }
+
+  long newTime = millis();
+
+  long d_time = newTime - oldTime;
+
   gyro.read(); // read gyro
-  timer=millis(); //reset timer
-  gyro_x=(float)(gyro.g.x-gerrx)*G_gain; // offset by error then multiply by gyro gain factor
-  gyro_y=(float)(gyro.g.y-gerry)*G_gain;
-  gyro_z=(float)(gyro.g.z-gerrz)*G_gain;
+  
+  gyro_x=(double)(gyro.g.x-gerrx)*G_gain; // offset by error then multiply by gyro gain factor
+  gyro_y=(double)(gyro.g.y-gerry)*G_gain;
+  gyro_z=(double)(gyro.g.z-gerrz)*G_gain;
+  
+  gyro_x = gyro_x * d_time; // Multiply the angular rate by the time interval
+  gyro_y = gyro_y * d_time;
+  gyro_z = gyro_z * d_time;
 
-  gyro_x = gyro_x*G_Dt; // Multiply the angular rate by the time interval
-  gyro_y = gyro_y*G_Dt;
-  gyro_z = gyro_z*G_Dt;
-
-  gyro_x +=gyro_xold; // add the displacment(rotation) to the cumulative displacment
+  gyro_x += gyro_xold; // add the displacment(rotation) to the cumulative displacment
   gyro_y += gyro_yold;
   gyro_z += gyro_zold;
 
-  gyro_xold=gyro_x ; // Set the old gyro angle to the current gyro angle
-  gyro_yold=gyro_y ;
-  gyro_zold=gyro_z ;
-=======
->>>>>>> 234cb9fb4a6ba944568140e076cbb68b5c7713b5
+  v_gyro_x = (((gyro_x - gyro_xold) / 360.0) * 2.0 * PI) / d_time;
+  v_gyro_y = (((gyro_y - gyro_yold) / 360.0) * 2.0 * PI) / d_time;
+  v_gyro_z = (((gyro_z - gyro_zold) / 360.0) * 2.0 * PI) / d_time;
+
+  gyro_xold = gyro_x ; // Set the old gyro angle to the current gyro angle
+  gyro_yold = gyro_y ;
+  gyro_zold = gyro_z ;
+  
+  oldTime = newTime;
 }
 
 void doEncoders(int M) {
