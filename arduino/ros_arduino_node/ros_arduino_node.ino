@@ -92,6 +92,7 @@ void loop() {
   doEncoders(1);
 
   delay(10);
+<<<<<<< HEAD
 }
 
 void gyroZero(){
@@ -131,6 +132,8 @@ void readGyro() {
   gyro_xold=gyro_x ; // Set the old gyro angle to the current gyro angle
   gyro_yold=gyro_y ;
   gyro_zold=gyro_z ;
+=======
+>>>>>>> 234cb9fb4a6ba944568140e076cbb68b5c7713b5
 }
 
 void doEncoders(int M) {
