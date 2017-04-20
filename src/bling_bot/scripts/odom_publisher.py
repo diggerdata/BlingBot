@@ -13,10 +13,10 @@ def getArduinoVels(msg):
     ael = msg.linear.x
     aer = msg.linear.y
 
-    gyro_z = msg.angular.z
-    generateMessage(aer, ael, gyro_z)
+    gyro_y = msg.angular.y
+    generateMessage(aer, ael, gyro_y)
 
-def generateMessage(aer, ael, gyro_z):
+def generateMessage(aer, ael, gyro_y):
     global x
     global y
     global th
@@ -38,7 +38,7 @@ def generateMessage(aer, ael, gyro_z):
 
     delta_r = dt * aer
     delta_l = dt * ael
-    delta_th = dt * gyro_z
+    delta_th = dt * gyro_y
 
     # wheel odometry
     delta_xy = (delta_r + delta_l) / 2.0
