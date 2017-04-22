@@ -54,7 +54,7 @@ def generateMessage(aer, ael, gyro_y):
 
     # velocity calculations
     vx = delta_xy/dt
-    vth = delta_th_/dt
+    vth = delta_th/dt
 
 
 def main():
