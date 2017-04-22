@@ -33,7 +33,7 @@ double G_Dt = 0.020;  // Integration time (DCM algorithm)  We will run the integ
 
 long lastTime = 0;
 
-double G_gain = 0.0049; // gyros gain factor for 250deg/sec
+double G_gain = 0.00493; // gyros gain factor for 250deg/sec
 double gyro_x; //gyro x val
 double gyro_y; //gyro x val
 double gyro_z; //gyro x val
