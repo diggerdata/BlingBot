@@ -38,7 +38,10 @@ def generateMessage(aer, ael, gyro_y):
 
     delta_r = dt * aer
     delta_l = dt * ael
-    delta_th_imu = dt * (gyro_y / 2.0)
+    if gyro_y < 3.0:
+        delta_th_imu = dt * (gyro_y / 2.0)
+    else:
+        delta_th_imu = 0.0
 
     # wheel odometry
     delta_xy = (delta_r + delta_l) / 2.0
