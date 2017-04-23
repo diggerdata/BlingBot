@@ -44,6 +44,6 @@
     <remap from="scan" to="$(arg scan_topic)"/>
   </node>
 
-	<!-- <include file="$(find bling_bot)/launch/move_base.launch"/> -->
+	<include file="$(find bling_bot)/launch/move_base.launch"/>
 
 </launch>
