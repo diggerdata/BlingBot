@@ -47,8 +47,8 @@ def generateMessage(aer, ael, gyro_y):
     delta_xy = (delta_r + delta_l) / 2.0
     delta_th_enc = ((delta_l - delta_r) / wheel_separation) * odom_turn_multiplier
 
+    delta_th = 0.0*delta_th_imu + 1.0*delta_th_enc
     # imu odometry
-    delta_th = 0.4*delta_th_imu + 0.6*delta_th_enc
     th =  th + delta_th
 
     # xy
