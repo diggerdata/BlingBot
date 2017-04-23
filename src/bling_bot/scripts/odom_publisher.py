@@ -57,7 +57,7 @@ def generateMessage(aer, ael, gyro_y):
 
     # velocity calculations
     vx = delta_xy/dt
-    vth = delta_th/dt
+    vth = 0.0
 
 
 def main():
@@ -115,7 +115,7 @@ def main():
         odom.header.frame_id = "odom"
 
         # set the position
-        odom.pose.pose = Pose(Point(x, y, 0.), Quaternion(*odom_quat))
+        odom.pose.pose = Pose(Point(x, y, 0), Quaternion(*odom_quat))
 
         # set the velocity
         odom.child_frame_id = "base_link"
