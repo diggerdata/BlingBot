@@ -10,6 +10,7 @@
 #define ENCODER_R_B 1
 #define ENCODER_L_A 2
 #define ENCODER_L_B 3
+#define FLAME_PIN 14
 
 Encoder rEncoder(ENCODER_R_A, ENCODER_R_B);
 Encoder lEncoder(ENCODER_L_A, ENCODER_L_B);
@@ -77,6 +78,8 @@ void setup() {
   odom_msg.angular.z = 5;
   Pub.publish(&odom_msg);
 
+  pinMode(FLAME_PIN, INPUT);
+
   Wire.begin(); // i2c begin
 
   if (!gyro.init()) { // gyro init
@@ -99,6 +102,7 @@ void loop() {
     odom_msg.linear.y = Vels[1];
     odom_msg.angular.x = v_gyro_x;
     odom_msg.angular.y = v_gyro_y;
+    odom_msg.angular.z = analogRead(FLAME_PIN);
     Pub.publish(&odom_msg);
   }
   else {
