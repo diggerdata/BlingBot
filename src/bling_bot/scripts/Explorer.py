@@ -9,6 +9,7 @@ import math
 import time as timer
 from CostCell import CostCell
 from nav_msgs.msg import GridCells, Odometry
+from std_msgs.msg import Bool
 from nav_msgs.srv import GetMap
 from geometry_msgs.msg import Point, PoseStamped, Twist, Vector3
 from actionlib_msgs.msg import GoalID, GoalStatusArray
@@ -38,9 +39,14 @@ class Explorer(object):
 		self.flame_seen = False
 
 		self.last_laser = None
+		self.laser_th = None
+		self.odom_x = 0
+		self.odom_y = 0
+		self.odom_th = 0
 
 		self.cancel = rospy.Publisher('/move_base/cancel', GoalID, queue_size=1)
 		self.vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=50)
+		self.fan_pub = rospy.Publisher('/toggle_fan', Bool, queue_size=1)
 		self.ard_sub = rospy.Subscriber('/ard_odom', Twist, self.ard_sub_callback, queue_size=1)
 		self.scan_sub = rospy.Subscriber('/scan', LaserScan, self.scan_sub_callback, queue_size=1)
 
@@ -86,12 +92,17 @@ class Explorer(object):
 	def get_candle_xy(self):
 		len_scan = len(self.last_laser)
 		last_dist = 1000
+		pos = 0
 
-		for i in range((len_scan / 2) - 20, (len_scan / 2) + 20):
+		for i in range((len_scan / 2) - 50, (len_scan / 2) + 50):
 			if self.last_laser[i] < last_dist:
 				last_dist = self.last_laser[i]
+				pos = i
+		candle_th = (pos-20)*self.laser_th + self.odom_th
+		candle_x = last_dist * math.cos(candle_th) + self.odom_x
+		candle_y = last_dist * math.sin(candle_th) + self.odom_y
 
-		return last_dist
+		return [candle_x, candle_y]
 
 	def go_home(self):
 		goal = PoseStamped()
@@ -100,20 +111,31 @@ class Explorer(object):
 		goal.pose.position.x = 0.0
 		goal.pose.position.y = 0.0
 		goal.pose.orientation.w, goal.pose.orientation.x, goal.pose.orientation.y, goal.pose.orientation.z = quaternion_from_euler(0.0, 0.0, 0.0)
+		self.nav_to_pose(goal)
 
 	def ard_sub_callback(self, msg):
-		flame_threshold = 1000.0
+		flame_threshold = 950.0
 		if msg.angular.z < flame_threshold:
 			self.flame_seen = True
 			self.end_nav()
 			self.stop_motors()
-			thing = self.get_candle_xy()
-			rospy.loginfo("FOUND CANDLE at {0}".format(thing))
 			self.backup(.2)
+			thing = self.get_candle_xy()
+			rospy.loginfo("FOUND CANDLE at [{0}, {1}] and pos [{2},{3}, th {4}]".format(thing[0], thing[1], self.x, self.y, self.z))
+			self.fan_toggle(3)
+			self.go_home()
+			rospy.loginfo("WE HOME NOW!!!")
+			rospy.signal_shutdown("done")
 			exit()
 
 	def scan_sub_callback(self, msg):
 		self.last_laser =  msg.ranges
+		self.laser_th = msg.angle_increment
+
+	def fan_toggle(self, time):
+		self.fan_pub.publish(True)
+		timer.sleep(time)
+		self.fan_pub.publish(False)
 
 	def approx(self, cell):
 		# approximate a grid cell's location by returning a list
@@ -178,7 +200,7 @@ class Explorer(object):
 		try:
 			for j in range(len(dists)):
 				rospy.loginfo("Lens: {0}".format(lens[j]))
-				if dists[j] < 100 and lens[j] > 15:
+				if dists[j] < 100 and lens[j] > 20:
 					weights.append(dists[j] / lens[j])
 				else:
 					weights.append(0)
@@ -271,6 +293,10 @@ class Explorer(object):
 	def update_pose(self, data):
 		# update the robot's pose
 		try:
+			self.odom_x = data.linear.x
+			self.odom_y = data.linear.y
+			self.odom_th = data.angular.z
+
 			pos, ang = self.odom_list.lookupTransform('map', 'base_footprint', rospy.Time(0))
 			self.x = pos[0]
 			self.y = pos[1]
@@ -445,9 +471,8 @@ class Explorer(object):
 						self.at_goal = True
 						rospy.loginfo("Turning 360!")
 
-						# TODO: find if candle is there
-
 						# self.turn360(6)
+
 						self.nav_next_centroid()
 					elif 4 <= goal.status <= 5:  # Goal unreachable or rejected
 						self.at_goal = True

@@ -1,15 +1,18 @@
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Bool.h>
 #include <Encoder.h>
 #include <Wire.h>
 #include <L3G.h>
 #include <LSM303.h>
+#include <Servo.h>
 
 // encoder pins
 #define ENCODER_R_A 0
 #define ENCODER_R_B 1
 #define ENCODER_L_A 2
 #define ENCODER_L_B 3
+#define FAN_PIN 6
 #define FLAME_PIN 14
 
 Encoder rEncoder(ENCODER_R_A, ENCODER_R_B);
@@ -20,6 +23,13 @@ LSM303 accel;
 float WHEEL_DIAMETER = 0.07;
 float WHEEL_SEPARATION = 0.17;
 int TICKS_PER_REV = 1796; //Encoder ticks per rotation
+int FAN_ON = 70;
+
+boolean fanSwitch = false;
+boolean fanAttached = false;
+
+long lastRosPub = 0;
+long lastFanOn = 0;
 
 int OdomWait = 3;
 int OdomCount = 0;
@@ -62,15 +72,27 @@ double aerrx; // Accel x error
 double aerry; // Accel y error
 double aerrz; // Accel 7 error
 
+Servo fanServo;
+
 ros::NodeHandle nh;
+
+void messageCb( const std_msgs::Bool& msg) {
+  fanSwitch = msg.data;
+  lastFanOn = millis();
+  nh.logwarn("Fan state changed.");
+}
 
 // ROS publisher
 geometry_msgs::Twist odom_msg;
+std_msgs::Bool fan_msg;
 ros::Publisher Pub ("ard_odom", &odom_msg);
+ros::Subscriber<std_msgs::Bool> Sub("/toggle_fan", messageCb );
 
 void setup() {
+  nh.getHardware()->setBaud(57600);
   nh.initNode();
   nh.advertise(Pub);
+  nh.subscribe(Sub);
   odom_msg.linear.x = 1;
   odom_msg.linear.y = 2;
   odom_msg.angular.x = 3;
@@ -78,7 +100,9 @@ void setup() {
   odom_msg.angular.z = 5;
   Pub.publish(&odom_msg);
 
+
   pinMode(FLAME_PIN, INPUT);
+  fanServo.attach(FAN_PIN);
 
   Wire.begin(); // i2c begin
 
@@ -95,28 +119,41 @@ void setup() {
 
 void loop() {
   nh.spinOnce();
+  if (millis() - lastRosPub > 10) {
+    //first couple of times dont publish odom
+    if (OdomCount > OdomWait) {
+      odom_msg.linear.x = Vels[0];
+      odom_msg.linear.y = Vels[1];
+      odom_msg.angular.x = v_gyro_x;
+      odom_msg.angular.y = v_gyro_y;
+      odom_msg.angular.z = analogRead(FLAME_PIN);
+      Pub.publish(&odom_msg);
+    }
+    else {
+      OdomCount++;
+    }
+    doEncoders(0);
+    doEncoders(1);
+    complimentaryFilter();
+    readGyro();
 
-  //first couple of times dont publish odom
-  if (OdomCount > OdomWait) {
-    odom_msg.linear.x = Vels[0];
-    odom_msg.linear.y = Vels[1];
-    odom_msg.angular.x = v_gyro_x;
-    odom_msg.angular.y = v_gyro_y;
-    odom_msg.angular.z = analogRead(FLAME_PIN);
-    Pub.publish(&odom_msg);
+    lastRosPub = millis();
   }
-  else {
-    OdomCount++;
+
+  if (millis() - lastFanOn > 50) {
+    if (fanSwitch) {
+      fanServo.write(70);
+      lastFanOn = millis();
+      nh.logwarn("Writing to fan.");
+    }
+    else {
+      fanServo.write(0);
+//      fanServo.detach();
+    }
+
+    lastFanOn = millis();
   }
-
-  doEncoders(0);
-  doEncoders(1);
-  complimentaryFilter();
-  readGyro();
-
-  delay(10);
 }
-
 
 void doEncoders(int M) {
   //if fist time in program return 0 and init time vars
