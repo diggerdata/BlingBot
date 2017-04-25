@@ -6,6 +6,7 @@ import actionlib
 import rospy
 import tf
 import math
+import random
 import time as timer
 from CostCell import CostCell
 from nav_msgs.msg import GridCells, Odometry
@@ -98,9 +99,9 @@ class Explorer(object):
 			if self.last_laser[i] < last_dist:
 				last_dist = self.last_laser[i]
 				pos = i
-		candle_th = (pos-20)*self.laser_th + self.odom_th
-		candle_x = last_dist * math.cos(candle_th) + self.odom_x
-		candle_y = last_dist * math.sin(candle_th) + self.odom_y
+		#candle_th = (pos-20)*self.laser_th + self.odom_th
+		candle_x = last_dist * math.cos(self.odom_th) + self.odom_x
+		candle_y = last_dist * math.sin(self.odom_th) + self.odom_y
 
 		return [candle_x, candle_y]
 
@@ -118,13 +119,15 @@ class Explorer(object):
 		if msg.angular.z < flame_threshold:
 			self.flame_seen = True
 			self.end_nav()
+			# timer.sleep(1)
 			self.stop_motors()
-			self.backup(.2)
+			self.fan_toggle()
 			thing = self.get_candle_xy()
-			rospy.loginfo("FOUND CANDLE at [{0}, {1}] and pos [{2},{3}, th {4}]".format(thing[0], thing[1], self.x, self.y, self.z))
-			self.fan_toggle(3)
+			rospy.loginfo("FOUND CANDLE at [{0}, {1}, 23.1759327] and pos [{2},{3}, th {4}]".format(thing[1], thing[0], self.odom_x, self.odom_y, self.odom_th))
+			timer.sleep(4)
+
 			self.go_home()
-			rospy.loginfo("WE HOME NOW!!!")
+			rospy.loginfo("Going home!")
 			rospy.signal_shutdown("done")
 			exit()
 
@@ -132,9 +135,9 @@ class Explorer(object):
 		self.last_laser =  msg.ranges
 		self.laser_th = msg.angle_increment
 
-	def fan_toggle(self, time):
+	def fan_toggle(self):
 		self.fan_pub.publish(True)
-		timer.sleep(time)
+		timer.sleep(3)
 		self.fan_pub.publish(False)
 
 	def approx(self, cell):
@@ -190,7 +193,7 @@ class Explorer(object):
 			self.end_nav()
 			self.done = True
 			print "Finished Mapping"
-			rospy.signal_shutdown("done")
+			# self.exp_cells = []
 			exit()
 
 		for c in cents:
@@ -200,10 +203,8 @@ class Explorer(object):
 		try:
 			for j in range(len(dists)):
 				rospy.loginfo("Lens: {0}".format(lens[j]))
-				if dists[j] < 100 and lens[j] > 20:
-					weights.append(dists[j] / lens[j])
-				else:
-					weights.append(0)
+
+				weights.append(dists[j] / lens[j])
 		except:
 			pass
 
@@ -293,9 +294,9 @@ class Explorer(object):
 	def update_pose(self, data):
 		# update the robot's pose
 		try:
-			self.odom_x = data.linear.x
-			self.odom_y = data.linear.y
-			self.odom_th = data.angular.z
+			self.odom_x = data.pose.pose.position.x
+			self.odom_y = data.pose.pose.position.y
+			self.odom_th = data.pose.pose.orientation.z
 
 			pos, ang = self.odom_list.lookupTransform('map', 'base_footprint', rospy.Time(0))
 			self.x = pos[0]

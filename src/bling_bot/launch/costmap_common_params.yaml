@@ -1,9 +1,10 @@
 obstacle_range: 1.5
 raytrace_range: 1.5
-# footprint: [ [0.13, 0.13], [-0.13, 0.13], [-0.13, -0.13], [0.13, -0.13] ]
-robot_radius: 0.15
+footprint: [ [0.13, 0.13], [-0.13, 0.13], [-0.13, -0.13], [0.13, -0.13] ]
+# robot_radius: 0.15
 inflation_radius: 0.15
 footprint_clearing_enabled: true
+
 observation_sources: laser_scan_sensor
 transform_tolerance: 10.0
 laser_scan_sensor: {sensor_frame: /camera_depth_frame, data_type: LaserScan, topic: /scan, marking: true, clearing: true, min_obstacle_height: 0.02, max_obstacle_height: 0.35}
