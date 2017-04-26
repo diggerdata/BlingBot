@@ -27,25 +27,25 @@ def encoder_callback(msg):
 	global left_vel
 	global right_vel
 	global last_time
-    global vl
-    global vr
-    global pid_left
-    global pid_right
+	global vl
+	global vr
+	global pid_left
+	global pid_right
 
-    pid_left.SetPoint = vl
-    pid_right.SetPoint = vr
+	pid_left.SetPoint = vl
+	pid_right.SetPoint = vr
 
-    pid_left.update(left_vel)
-    pid_right.update(right_vel)
+	pid_left.update(left_vel)
+	pid_right.update(right_vel)
 
-    vl_out = -1 * limit(pid_left.output)
-    vr_out = limit(pid_right.output)
+	vl_out = -1 * limit(pid_left.output)
+	vr_out = limit(pid_right.output)
 
-    left_vel = msg.linear.y
-    right_vel = msg.linear.x
+	left_vel = msg.linear.y
+	right_vel = msg.linear.x
 
 	if not flame_stop:
-    	set_motor_vel(vl_out, vr_out)
+		set_motor_vel(vl_out, vr_out)
 
 def cmd_callback(msg):
     global vl
