@@ -102,6 +102,11 @@ class Explorer(object):
 				last_dist = self.last_laser[i]
 				pos = i
 		#candle_th = (pos-20)*self.laser_th + self.odom_th
+
+		# if the candle is too far use 18 inches (0.4572 m)
+		if last_dist > 1.0:
+			last_dist = 0.4572
+
 		candle_x = last_dist * math.cos(self.odom_th) + self.odom_x
 		candle_y = last_dist * math.sin(self.odom_th) + self.odom_y
 
