@@ -13,6 +13,7 @@ from dual_mc33926_rpi import motors, MAX_SPEED
 def limit(num, minimum=-480, maximum=480):
     return max(min(num, maximum), minimum)
 
+
 def set_motor_vel(vl, vr):
     try:
         motors.setSpeeds(vl, vr)
@@ -21,10 +22,11 @@ def set_motor_vel(vl, vr):
         motors.setSpeeds(0, 0)
         motors.disable()
 
+
 def encoder_callback(msg):
 	global left_vel
-    global right_vel
-    global last_time
+	global right_vel
+	global last_time
     global vl
     global vr
     global pid_left
