@@ -55,6 +55,8 @@ class Explorer(object):
 		self.path_pub = rospy.Publisher('/path_cells', GridCells, queue_size=1)
 		self.front_pub = rospy.Publisher('/frontier_cells', GridCells, queue_size=1)
 		self.wall_pub = rospy.Publisher('/wall_cells', GridCells, queue_size=1)
+
+		self.flame_pub = rospy.Publisher('/flame_seen', Bool, queue_size=1)
 		self.last_goal = None # previous goal
 
 	def get_centroid(self, front):
@@ -119,15 +121,16 @@ class Explorer(object):
 		if msg.angular.z < flame_threshold:
 			self.flame_seen = True
 			self.end_nav()
-			# timer.sleep(1)
-			self.stop_motors()
+			flame_pub.publish(True) # Stop motors
 			self.fan_toggle()
 			thing = self.get_candle_xy()
 			rospy.loginfo("FOUND CANDLE at [{0}, {1}, 23.1759327] and pos [{2},{3}, th {4}]".format(thing[1], thing[0], self.odom_x, self.odom_y, self.odom_th))
-			timer.sleep(4)
 
+			timer.sleep(2) # Wait to go home
 			self.go_home()
 			rospy.loginfo("Going home!")
+
+			# Exit thread
 			rospy.signal_shutdown("done")
 			exit()
 
