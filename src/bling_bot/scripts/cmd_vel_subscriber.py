@@ -61,7 +61,7 @@ def cmd_callback(msg):
 
 def flame_callback(msg):
 	global flame_stop
-	flame_stop = msg
+	flame_stop = msg.data
 	if msg == True:
 	    set_motor_vel(0, 0)
 

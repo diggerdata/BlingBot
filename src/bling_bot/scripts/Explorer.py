@@ -131,8 +131,8 @@ class Explorer(object):
 			rospy.loginfo("Going home!")
 
 			# Exit thread
-			# rospy.signal_shutdown("done")
-			# exit()
+			rospy.signal_shutdown("done")
+			exit()
 
 	def scan_sub_callback(self, msg):
 		self.last_laser =  msg.ranges
