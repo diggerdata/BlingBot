@@ -121,18 +121,18 @@ class Explorer(object):
 		if msg.angular.z < flame_threshold:
 			self.flame_seen = True
 			self.end_nav()
-			flame_pub.publish(True) # Stop motors
+			self.flame_pub.publish(True) # Stop motors
 			self.fan_toggle()
 			thing = self.get_candle_xy()
 			rospy.loginfo("FOUND CANDLE at [{0}, {1}, 23.1759327] and pos [{2},{3}, th {4}]".format(thing[1], thing[0], self.odom_x, self.odom_y, self.odom_th))
-
 			timer.sleep(2) # Wait to go home
+			self.flame_pub.publish(False) # Stop motors
 			self.go_home()
 			rospy.loginfo("Going home!")
 
 			# Exit thread
-			rospy.signal_shutdown("done")
-			exit()
+			# rospy.signal_shutdown("done")
+			# exit()
 
 	def scan_sub_callback(self, msg):
 		self.last_laser =  msg.ranges
