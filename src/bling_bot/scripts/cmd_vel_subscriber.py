@@ -46,6 +46,8 @@ def encoder_callback(msg):
 	if not flame_stop:
 	    set_motor_vel(vl_out, vr_out)
 	else:
+		vl = 0.0
+		vr = 0.0
 		set_motor_vel(0, 0)
 
 
