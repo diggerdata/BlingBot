@@ -29,7 +29,7 @@ def generateMessage(aer, ael, gyro_y):
 
     # robot constants
     wheel_separation = 0.17  # meters
-    odom_turn_multiplier = 1
+    odom_turn_multiplier = 1.05
 
     current_time = rospy.Time.now()
     dt = (current_time - prev_time).to_sec()
