@@ -140,15 +140,14 @@ void loop() {
     lastRosPub = millis();
   }
 
-  if ((millis() - lastFanOn) > 50) {
+  if (millis() - lastFanOn > 50) {
     if (fanSwitch) {
-      fanServo.write(80);
+      fanServo.write(70);
       lastFanOn = millis();
       nh.logwarn("Writing to fan.");
     }
     else {
       fanServo.write(0);
-      nh.logwarn("Not writing to fan.");
 //      fanServo.detach();
     }
 

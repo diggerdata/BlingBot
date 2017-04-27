@@ -38,8 +38,11 @@ class Explorer(object):
 		self.unreachable = False # unreachable goal detected
 		self.new_goal = None
 		self.flame_seen = False
+		self.map_ox = 0
+		self.map_oy = 0
 
 		self.last_laser = None
+		self.last_laser_dist = 0.0
 		self.laser_th = None
 		self.odom_x = 0
 		self.odom_y = 0
@@ -97,18 +100,21 @@ class Explorer(object):
 		last_dist = 1000
 		pos = 0
 
-		for i in range((len_scan / 2) - 50, (len_scan / 2) + 50):
+		rospy.logwarn("Length of laserscan: {}".format(last_dist))
+		for i in range((len_scan / 2) - 100, (len_scan / 2) + 100):
 			if self.last_laser[i] < last_dist:
 				last_dist = self.last_laser[i]
 				pos = i
 		#candle_th = (pos-20)*self.laser_th + self.odom_th
 
 		# if the candle is too far use 18 inches (0.4572 m)
-		if last_dist > 1.0:
-			last_dist = 0.4572
+		# if last_dist > 1.0:
+			# last_dist = 0.25
 
-		candle_x = last_dist * math.cos(self.odom_th) + self.odom_x
-		candle_y = last_dist * math.sin(self.odom_th) + self.odom_y
+		self.last_laser_dist = last_dist
+
+		candle_x = last_dist+0.05 * math.cos(self.z) + self.odom_x
+		candle_y = last_dist+0.05 * math.sin(self.z) + self.odom_y
 
 		return [candle_x, candle_y]
 
@@ -129,7 +135,7 @@ class Explorer(object):
 			self.flame_pub.publish(True) # Stop motors
 			self.fan_toggle()
 			thing = self.get_candle_xy()
-			rospy.loginfo("FOUND CANDLE at [{0}, {1}, 23.1759327] and pos [{2},{3}, th {4}]".format(thing[1], thing[0], self.odom_x, self.odom_y, self.odom_th))
+			rospy.loginfo("FOUND CANDLE at [{0}, {1}, 23.1759327] and pos [{2},{3}, th {4}, candle {5}]".format(thing[0], thing[1], self.odom_x, self.odom_y, self.z, self.last_laser_dist))
 			timer.sleep(2) # Wait to go home
 			self.flame_pub.publish(False) # Stop motors
 			self.go_home()
@@ -212,7 +218,10 @@ class Explorer(object):
 			for j in range(len(dists)):
 				rospy.loginfo("Lens: {0}".format(lens[j]))
 
-				weights.append(dists[j] / lens[j])
+				if dists[j] < 100:
+					weights.append(dists[j] / lens[j])
+				else:
+					weights.append(0)
 		except:
 			pass
 
@@ -306,14 +315,15 @@ class Explorer(object):
 			self.odom_y = data.pose.pose.position.y
 			self.odom_th = data.pose.pose.orientation.z
 
-			pos, ang = self.odom_list.lookupTransform('map', 'base_footprint', rospy.Time(0))
+			pos, ang = self.odom_list.lookupTransform('map', 'base_link', rospy.Time(0))
 			self.x = pos[0]
 			self.y = pos[1]
 			self.xc, self.yc  = self.map_to_grid(pos[0], pos[1])
 
 			rol, pit, yaw = euler_from_quaternion(ang)
 			self.z = yaw
-		except:
+		except Exception as e:
+			rospy.logwarn("Odom update failed! {}".format(str(e)))
 			pass
 
 	def farthest(self, front):
