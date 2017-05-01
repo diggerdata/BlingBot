@@ -101,15 +101,15 @@ class Explorer(object):
 		pos = 0
 
 		rospy.logwarn("Length of laserscan: {}".format(last_dist))
-		for i in range((len_scan / 2) - 100, (len_scan / 2) + 100):
+		for i in range(len_scan):
 			if self.last_laser[i] < last_dist:
 				last_dist = self.last_laser[i]
 				pos = i
 		#candle_th = (pos-20)*self.laser_th + self.odom_th
 
 		# if the candle is too far use 18 inches (0.4572 m)
-		# if last_dist > 1.0:
-			# last_dist = 0.25
+		# if last_dist > 0.7:
+		# 	last_dist = 0.3
 
 		self.last_laser_dist = last_dist
 
