@@ -135,7 +135,7 @@ class Explorer(object):
 			self.flame_pub.publish(True) # Stop motors
 			self.fan_toggle()
 			thing = self.get_candle_xy()
-			rospy.loginfo("FOUND CANDLE at [{0}, {1}, 23.1759327] and pos [{2},{3}, th {4}, candle {5}]".format(thing[0], thing[1], self.odom_x, self.odom_y, self.z, self.last_laser_dist))
+			rospy.loginfo("FOUND CANDLE at [{2}, {3}, th {4} ] and pos [{0},{1}]".format(thing[0], thing[1], self.odom_x, self.odom_y, self.z, self.last_laser_dist))
 			timer.sleep(2) # Wait to go home
 			self.flame_pub.publish(False) # Stop motors
 			self.go_home()
